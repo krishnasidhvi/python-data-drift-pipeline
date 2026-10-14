@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Health & Drift Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0b1120;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .card-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 6px; }
+        .card-value { font-size: 24px; font-weight: bold; color: #f8fafc; }
+        .section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 26px;
+        }
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #f8fafc; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #0f172a; padding: 12px; color: #94a3b8; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid #334155; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1 style="margin: 0; font-size: 26px; color: #f8fafc;">Data Drift & Pipeline Diagnostic Report</h1>
+                <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 14px;">Timestamp: 2026-10-14T14:47:42.261074+00:00</p>
+            </div>
+            <div><span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 4px 12px; border-radius: 9999px; font-weight: bold;">CRITICAL DRIFT DETECTED - RETRAINING TRIGGERED</span></div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-label">Valid Records</div>
+                <div class="card-value" style="color: #38bdf8;">2000</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Quarantined (DLQ)</div>
+                <div class="card-value" style="color: #ef4444;">3</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Retraining Triggered</div>
+                <div class="card-value" style="color: #ef4444;">YES</div>
+            </div>
+            <div class="card">
+                <div class="card-label">Monitored Features</div>
+                <div class="card-value">5</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Feature Population Stability Index (PSI) Overview</div>
+            <div style="height: 280px;">
+                <canvas id="psiChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Statistical Feature Drift Summary</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature Name</th>
+                        <th>Type</th>
+                        <th>KS Statistic (D)</th>
+                        <th>KS p-value</th>
+                        <th>PSI Score</th>
+                        <th>Severity</th>
+                        <th>Drift Detected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 12px; font-weight: bold; color: #f8fafc;">age</td>
+            <td style="padding: 12px; color: #94a3b8;">numeric</td>
+            <td style="padding: 12px; font-family: monospace;">0.0090</td>
+            <td style="padding: 12px; font-family: monospace;">0.999996</td>
+            <td style="padding: 12px; font-family: monospace; font-weight: bold; color: #10b981;">0.0032</td>
+            <td style="padding: 12px;"><span style="background:#10b981; color:#fff; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">STABLE</span></td>
+            <td style="padding: 12px; color: #10b981; font-weight: bold;">NO</td>
+        </tr>
+        
+        <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 12px; font-weight: bold; color: #f8fafc;">annual_income</td>
+            <td style="padding: 12px; color: #94a3b8;">numeric</td>
+            <td style="padding: 12px; font-family: monospace;">0.3635</td>
+            <td style="padding: 12px; font-family: monospace;">0.000000</td>
+            <td style="padding: 12px; font-family: monospace; font-weight: bold; color: #ef4444;">0.7480</td>
+            <td style="padding: 12px;"><span style="background:#ef4444; color:#fff; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">CRITICAL</span></td>
+            <td style="padding: 12px; color: #ef4444; font-weight: bold;">YES</td>
+        </tr>
+        
+        <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 12px; font-weight: bold; color: #f8fafc;">credit_utilization</td>
+            <td style="padding: 12px; color: #94a3b8;">numeric</td>
+            <td style="padding: 12px; font-family: monospace;">0.1870</td>
+            <td style="padding: 12px; font-family: monospace;">0.000000</td>
+            <td style="padding: 12px; font-family: monospace; font-weight: bold; color: #f59e0b;">0.1913</td>
+            <td style="padding: 12px;"><span style="background:#ef4444; color:#fff; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">CRITICAL</span></td>
+            <td style="padding: 12px; color: #ef4444; font-weight: bold;">YES</td>
+        </tr>
+        
+        <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 12px; font-weight: bold; color: #f8fafc;">monthly_spend</td>
+            <td style="padding: 12px; color: #94a3b8;">numeric</td>
+            <td style="padding: 12px; font-family: monospace;">0.5245</td>
+            <td style="padding: 12px; font-family: monospace;">0.000000</td>
+            <td style="padding: 12px; font-family: monospace; font-weight: bold; color: #ef4444;">1.5363</td>
+            <td style="padding: 12px;"><span style="background:#ef4444; color:#fff; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">CRITICAL</span></td>
+            <td style="padding: 12px; color: #ef4444; font-weight: bold;">YES</td>
+        </tr>
+        
+        <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 12px; font-weight: bold; color: #f8fafc;">subscription_tier</td>
+            <td style="padding: 12px; color: #94a3b8;">categorical</td>
+            <td style="padding: 12px; font-family: monospace;">—</td>
+            <td style="padding: 12px; font-family: monospace;">—</td>
+            <td style="padding: 12px; font-family: monospace; font-weight: bold; color: #f59e0b;">0.2067</td>
+            <td style="padding: 12px;"><span style="background:#f59e0b; color:#fff; padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;">WARNING</span></td>
+            <td style="padding: 12px; color: #ef4444; font-weight: bold;">YES</td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Dead-Letter Queue (DLQ) Sample Payloads</div>
+            
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-weight: bold; color: #f43f5e; margin-bottom: 6px;">Quarantined Record #1 (Isolated by Schema Gatekeeper)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Raw Payload</div>
+                        <pre style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 12px; color: #cbd5e1; overflow-x: auto;">{
+  "record_id": "BAD-01",
+  "age": 14,
+  "annual_income": 50000,
+  "credit_utilization": 0.3,
+  "monthly_spend": 1000,
+  "subscription_tier": "free"
+}</pre>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Pydantic Core Validation Errors</div>
+                        <pre style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 12px; color: #fda4af; overflow-x: auto;">[
+  {
+    "type": "greater_than_equal",
+    "loc": [
+      "age"
+    ],
+    "msg": "Input should be greater than or equal to 18",
+    "input": 14,
+    "ctx": {
+      "ge": 18
+    }
+  }
+]</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; margin-bottom: 12px;">
+                <div style="font-weight: bold; color: #f43f5e; margin-bottom: 6px;">Quarantined Record #2 (Isolated by Schema Gatekeeper)</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Raw Payload</div>
+                        <pre style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 12px; color: #cbd5e1; overflow-x: auto;">{
+  "record_id": "BAD-02",
+  "age": 40,
+  "annual_income": 20000,
+  "credit_utilization": 0.5,
+  "monthly_spend": 15000,
+  "subscription_tier": "pro"
+}</pre>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px;">Pydantic Core Validation Errors</div>
+                        <pre style="background: #0f172a; padding: 10px; border-radius: 6px; font-size: 12px; color: #fda4af; overflow-x: auto;">[
+  {
+    "type": "value_error",
+    "loc": [],
+    "msg": "Value error, Anomalous spend-to-income ratio: monthly_spend=15000.0, annual_income=20000.0",
+    "input": {
+      "record_id": "BAD-02",
+      "age": 40,
+      "annual_income": 20000,
+      "credit_utilization": 0.5,
+      "monthly_spend": 15000,
+      "subscription_tier": "pro"
+    },
+    "ctx": {
+      "error": "Anomalous spend-to-income ratio: monthly_spend=15000.0, annual_income=20000.0"
+    }
+  }
+]</pre>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('psiChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["age", "annual_income", "credit_utilization", "monthly_spend", "subscription_tier"],
+                datasets: [{
+                    label: 'Population Stability Index (PSI)',
+                    data: [0.0032, 0.74802, 0.19126, 1.53628, 0.20675],
+                    backgroundColor: ["#10b981", "#ef4444", "#f59e0b", "#ef4444", "#f59e0b"],
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#e2e8f0', font: { weight: 'bold' } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' PSI: ' + context.raw.toFixed(4);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
