@@ -221,7 +221,6 @@ def predict_record(payload: dict):
 ├── visualization.py               # Visualization engine: Matplotlib dashboard & HTML export
 ├── client_integration_example.py  # Production enterprise client integration template
 ├── test_drift_pipeline.py         # Comprehensive unit test suite (16 tests)
-├── LINKEDIN_POST.md               # Ready-to-publish LinkedIn post templates
 ├── requirements.txt               # Pinned dependencies
 └── README.md                      # Complete documentation
 ```
